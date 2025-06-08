@@ -55,8 +55,20 @@ export function diskItemToD3Hierarchy(baseData: DiskItem) {
   return root as D3HierarchyDiskItem;
 }
 
-// Elimino tutti i children oltre una certa depth
-// Parto dal nodo rootPath
+export function depthCutForTreeView(node: DiskItem, depth: number, curDepth = 0): DiskItem {
+  var newNode = {
+    ...node,
+  };
+  if (depth == curDepth) {
+    newNode.children = [];
+  } else {
+    newNode.data = 0;
+    newNode.children = newNode.children.map((c) =>
+      depthCutForTreeView(c, depth, curDepth + 1)
+    );
+  }
+  return newNode;
+}
 
 // CLONE
 export function depthCut(

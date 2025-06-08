@@ -43,7 +43,7 @@ export const ParentFolder = ({
       </div>
       <div className="text-xs">
         {focusedDirectory &&
-          (focusedDirectory.data.value! / mul / mul / mul).toFixed(2)}{" "}
+          (focusedDirectory.data.data! / mul / mul / mul).toFixed(2)}{" "}
         GB
       </div>
     </div>

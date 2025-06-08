@@ -8,6 +8,8 @@ import {
    buildFullPath,
    diskItemToD3Hierarchy,
    itemMap,
+   depthCut,
+   depthCutForTreeView,
 } from "../pruneData";
 import { FileLine } from "./FileLine";
 import { ParentFolder } from "./ParentFolder";
@@ -25,347 +27,9 @@ const Scanning = () => {
 
    const navigate = useNavigate();
    const baseData = useRef<DiskItem | null>(null);
+   const treeViewData = useRef<DiskItem | null>(null);
+   const maxDepth = 3
    const baseDataD3Hierarchy = useRef<D3HierarchyDiskItem | null>(null);
-   const data = {
-      name: "nivo",
-      children: [
-         {
-            name: "viz",
-            children: [
-               {
-                  name: "stack",
-                  children: [
-                     {
-                        name: "cchart",
-                        loc: 106382,
-                     },
-                     {
-                        name: "xAxis",
-                        loc: 73477,
-                     },
-                     {
-                        name: "yAxis",
-                        loc: 115115,
-                     },
-                     {
-                        name: "layers",
-                        loc: 109847,
-                     },
-                  ],
-               },
-               {
-                  name: "ppie",
-                  children: [
-                     {
-                        name: "chart",
-                        children: [
-                           {
-                              name: "pie",
-                              children: [
-                                 {
-                                    name: "outline",
-                                    loc: 129724,
-                                 },
-                                 {
-                                    name: "slices",
-                                    loc: 95027,
-                                 },
-                                 {
-                                    name: "bbox",
-                                    loc: 99865,
-                                 },
-                              ],
-                           },
-                           {
-                              name: "donut",
-                              loc: 75052,
-                           },
-                           {
-                              name: "gauge",
-                              loc: 135603,
-                           },
-                        ],
-                     },
-                     {
-                        name: "legends",
-                        loc: 93269,
-                     },
-                  ],
-               },
-            ],
-         },
-         {
-            name: "colors",
-            children: [
-               {
-                  name: "rgb",
-                  loc: 7268,
-               },
-               {
-                  name: "hsl",
-                  loc: 184934,
-               },
-            ],
-         },
-         {
-            name: "utils",
-            children: [
-               {
-                  name: "randomize",
-                  loc: 92638,
-               },
-               {
-                  name: "resetClock",
-                  loc: 189237,
-               },
-               {
-                  name: "noop",
-                  loc: 61142,
-               },
-               {
-                  name: "tick",
-                  loc: 45634,
-               },
-               {
-                  name: "forceGC",
-                  loc: 169876,
-               },
-               {
-                  name: "stackTrace",
-                  loc: 159868,
-               },
-               {
-                  name: "dbg",
-                  loc: 94993,
-               },
-            ],
-         },
-         {
-            name: "generators",
-            children: [
-               {
-                  name: "address",
-                  loc: 173254,
-               },
-               {
-                  name: "city",
-                  loc: 90845,
-               },
-               {
-                  name: "animal",
-                  loc: 140233,
-               },
-               {
-                  name: "movie",
-                  loc: 84750,
-               },
-               {
-                  name: "user",
-                  loc: 83448,
-               },
-            ],
-         },
-         {
-            name: "set",
-            children: [
-               {
-                  name: "clone",
-                  loc: 22153,
-               },
-               {
-                  name: "intersect",
-                  loc: 37460,
-               },
-               {
-                  name: "merge",
-                  loc: 189520,
-               },
-               {
-                  name: "reverse",
-                  loc: 157981,
-               },
-               {
-                  name: "toArray",
-                  loc: 115704,
-               },
-               {
-                  name: "toObject",
-                  loc: 162027,
-               },
-               {
-                  name: "fromCSV",
-                  loc: 115590,
-               },
-               {
-                  name: "slice",
-                  loc: 158149,
-               },
-               {
-                  name: "append",
-                  loc: 129285,
-               },
-               {
-                  name: "prepend",
-                  loc: 190715,
-               },
-               {
-                  name: "shuffle",
-                  loc: 176104,
-               },
-               {
-                  name: "pick",
-                  loc: 128279,
-               },
-               {
-                  name: "plouc",
-                  loc: 101890,
-               },
-            ],
-         },
-         {
-            name: "text",
-            children: [
-               {
-                  name: "trim",
-                  loc: 8811,
-               },
-               {
-                  name: "slugify",
-                  loc: 8160,
-               },
-               {
-                  name: "snakeCase",
-                  loc: 24758,
-               },
-               {
-                  name: "camelCase",
-                  loc: 19670,
-               },
-               {
-                  name: "repeat",
-                  loc: 121939,
-               },
-               {
-                  name: "padLeft",
-                  loc: 101556,
-               },
-               {
-                  name: "padRight",
-                  loc: 149978,
-               },
-               {
-                  name: "sanitize",
-                  loc: 103041,
-               },
-               {
-                  name: "ploucify",
-                  loc: 71618,
-               },
-            ],
-         },
-         {
-            name: "misc",
-            children: [
-               {
-                  name: "greetings",
-                  children: [
-                     {
-                        name: "hey",
-                        loc: 66948,
-                     },
-                     {
-                        name: "HOWDY",
-                        loc: 105090,
-                     },
-                     {
-                        name: "aloha",
-                        loc: 189019,
-                     },
-                     {
-                        name: "AHOY",
-                        loc: 75273,
-                     },
-                  ],
-               },
-               {
-                  name: "other",
-                  loc: 94554,
-               },
-               {
-                  name: "path",
-                  children: [
-                     {
-                        name: "pathA",
-                        loc: 57886,
-                     },
-                     {
-                        name: "pathB",
-                        children: [
-                           {
-                              name: "pathB1",
-                              loc: 129198,
-                           },
-                           {
-                              name: "pathB2",
-                              loc: 17577,
-                           },
-                           {
-                              name: "pathB3",
-                              loc: 198262,
-                           },
-                           {
-                              name: "pathB4",
-                              loc: 36090,
-                           },
-                        ],
-                     },
-                     {
-                        name: "pathC",
-                        children: [
-                           {
-                              name: "pathC1",
-                              loc: 145022,
-                           },
-                           {
-                              name: "pathC2",
-                              loc: 6721,
-                           },
-                           {
-                              name: "pathC3",
-                              loc: 65938,
-                           },
-                           {
-                              name: "pathC4",
-                              loc: 140452,
-                           },
-                           {
-                              name: "pathC5",
-                              loc: 149936,
-                           },
-                           {
-                              name: "pathC6",
-                              loc: 149614,
-                           },
-                           {
-                              name: "pathC7",
-                              loc: 20078,
-                           },
-                           {
-                              name: "pathC8",
-                              loc: 29108,
-                           },
-                           {
-                              name: "pathC9",
-                              loc: 89092,
-                           },
-                        ],
-                     },
-                  ],
-               },
-            ],
-         },
-      ],
-   };
 
    // Current Directory
    const [focusedDirectory, setFocusedDirectory] = useState<D3HierarchyDiskItem | null>(
@@ -393,15 +57,14 @@ const Scanning = () => {
          return;
       }
       const unlisten = listen("scan_status", (event: any) => {
-         // event.event is the event name (useful if you want to use a single callback fn for multiple event types)
-         // event.payload is the payload object
          setStatus(event.payload);
       });
 
       const unlisten2 = listen("scan_completed", (event: any) => {
-         // event.event is the event name (useful if you want to use a single callback fn for multiple event types)
-         // event.payload is the payload object
          baseData.current = JSON.parse(event.payload).tree;
+         if (baseData.current?.children.length) {
+            treeViewData.current = depthCutForTreeView(baseData.current, maxDepth);
+         }
          const mapped = itemMap(baseData.current);
          baseDataD3Hierarchy.current = diskItemToD3Hierarchy(mapped as any);
          setView("disk");
@@ -418,13 +81,13 @@ const Scanning = () => {
    }, [disk, setStatus]);
 
    // Appena ho i dati
-    useEffect(() => {
-       if (view == 'disk') {
-          // Remove old chart
-          const rootDir = baseDataD3Hierarchy.current!
-          setFocusedDirectory(rootDir)
-       }
-    }, [view])
+   useEffect(() => {
+      if (view == "disk") {
+         // Remove old chart
+         const rootDir = baseDataD3Hierarchy.current!;
+         setFocusedDirectory(rootDir);
+      }
+   }, [view]);
    // Avoid progress bar going to the star due to undetectable fs hardlinks
    const cappedTotal = Math.min(status ? status.total : 0, used);
    return (
@@ -482,17 +145,25 @@ const Scanning = () => {
                >
                   <div className="flex flex-1">
                      <div className="flex-1 flex">
-                        <ResponsiveTreeMapHtml
-                           data={data}
-                           identity="name"
-                           value="loc"
-                           labelTextColor={{ from: "color", modifiers: [["darker", 2]] }}
-                           parentLabelTextColor={{
-                              from: "color",
-                              modifiers: [["darker", 3]],
-                           }}
-                           colors={{ scheme: "yellow_orange_red" }}
-                        />
+                        {baseData.current && (
+                           <ResponsiveTreeMapHtml
+                              data={treeViewData.current}
+                              identity="name"
+                              value="data"
+                              valueFormat=".02s"
+                              labelTextColor={{
+                                 from: "color",
+                                 modifiers: [["darker", 2]],
+                              }}
+                              parentLabelTextColor={{
+                                 from: "color",
+                                 modifiers: [["darker", 3]],
+                              }}
+                              colors={{ scheme: "yellow_orange_red" }}
+                              nodeOpacity={0.9}
+                              label={node => `${node.id} (${node.formattedValue})`}
+                           />
+                        )}
                      </div>
 
                      <div className="bg-gray-900 w-1/3 p-2 flex flex-col">
