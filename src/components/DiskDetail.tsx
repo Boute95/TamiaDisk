@@ -10,6 +10,7 @@ import {
    itemMap,
    depthCut,
    depthCutForTreeView,
+   subTreeFromPath,
 } from "../pruneData";
 import { FileLine } from "./FileLine";
 import { ParentFolder } from "./ParentFolder";
@@ -26,15 +27,13 @@ const Scanning = () => {
    } = useLocation() as any;
 
    const navigate = useNavigate();
-   const baseData = useRef<DiskItem | null>(null);
-   const treeViewData = useRef<DiskItem | null>(null);
-   const maxDepth = 3
+   const fullTree = useRef<DiskItem | null>(null);
+   const [viewTree, setViewTree] = useState<DiskItem | null>(null);
+   const maxDepth = 3;
    const baseDataD3Hierarchy = useRef<D3HierarchyDiskItem | null>(null);
 
    // Current Directory
-   const [focusedDirectory, setFocusedDirectory] = useState<D3HierarchyDiskItem | null>(
-      null
-   );
+   const [focusedPath, setFocusedPath] = useState<string>("/");
    // Hovered Item
    const [hoveredItem, setHoveredItem] = useState<DiskItem | null>(null);
 
@@ -50,28 +49,22 @@ const Scanning = () => {
 
    const [deleteList, setDeleteList] = useState<Array<D3HierarchyDiskItem>>([]);
    const deleteMap = useRef<Map<string, boolean>>(new Map());
-   // Avvio il worker e attendo i dati
+
    useEffect(() => {
-      if (baseData.current) {
-         // Skip if already loaded data
+      if (fullTree.current) {
          return;
       }
       const unlisten = listen("scan_status", (event: any) => {
          setStatus(event.payload);
       });
-
       const unlisten2 = listen("scan_completed", (event: any) => {
-         baseData.current = JSON.parse(event.payload).tree;
-         if (baseData.current?.children.length) {
-            treeViewData.current = depthCutForTreeView(baseData.current, maxDepth);
-         }
-         const mapped = itemMap(baseData.current);
+         fullTree.current = JSON.parse(event.payload).tree;
+         setFocusedPath(fullTree.current?.id!);
+         const mapped = itemMap(fullTree.current);
          baseDataD3Hierarchy.current = diskItemToD3Hierarchy(mapped as any);
          setView("disk");
       });
-
       invoke("start_scanning", { path: disk, ratio: fullscan ? "0" : "0.001" });
-
       return () => {
          unlisten.then((f) => f());
          unlisten2.then((f) => f());
@@ -80,16 +73,32 @@ const Scanning = () => {
       };
    }, [disk, setStatus]);
 
-   // Appena ho i dati
+   // useEffect(() => {
+   //    if (view == "disk") {
+   //       const rootDir = baseDataD3Hierarchy.current!;
+   //       setFocusedDirectory(rootDir);
+   //    }
+   // }, [view]);
+
    useEffect(() => {
-      if (view == "disk") {
-         // Remove old chart
-         const rootDir = baseDataD3Hierarchy.current!;
-         setFocusedDirectory(rootDir);
+      if (fullTree.current?.children.length) {
+         let currentRootNode = fullTree.current;
+         if (focusedPath) {
+            const subTree = subTreeFromPath(
+               fullTree.current,
+               focusedPath.substring(1).split("/")
+            );
+            if (subTree) {
+               currentRootNode = subTree;
+            }
+         }
+         setViewTree(depthCutForTreeView(currentRootNode, maxDepth));
       }
-   }, [view]);
+   }, [focusedPath]);
+
    // Avoid progress bar going to the star due to undetectable fs hardlinks
    const cappedTotal = Math.min(status ? status.total : 0, used);
+
    return (
       <>
          {view == "loading" && status && (
@@ -124,33 +133,34 @@ const Scanning = () => {
          {view == "disk" && (
             <div className="flex-1 flex">
                <DragDropContext
-                  onDragEnd={(result) => {
-                     console.log(result);
-                     if (result.destination?.droppableId !== "deletelist") {
-                        return;
-                     }
-                     const item = focusedDirectory!.children!.find(
-                        (i) => i.data.id === result.draggableId
-                     );
-                     setDeleteList((val) => {
-                        if (!val.find((e) => e.data.id === item!.data.id)) {
-                           deleteMap.current.set(item!.data.id, true);
+                  onDragEnd={(result) => {}}
+                  // onDragEnd={(result) => {
+                  //    console.log(result);
+                  //    if (result.destination?.droppableId !== "deletelist") {
+                  //       return;
+                  //    }
+                  //    const item = focusedPath!.children!.find(
+                  //       (i) => i.data.id === result.draggableId
+                  //    );
+                  //    setDeleteList((val) => {
+                  //       if (!val.find((e) => e.data.id === item!.data.id)) {
+                  //          deleteMap.current.set(item!.data.id, true);
 
-                           return [...val, item!];
-                        } else {
-                           return val;
-                        }
-                     });
-                  }}
+                  //          return [...val, item!];
+                  //       } else {
+                  //          return val;
+                  //       }
+                  //    });
+                  // }}
                >
                   <div className="flex flex-1">
                      <div className="flex-1 flex">
-                        {baseData.current && (
+                        {viewTree && (
                            <ResponsiveTreeMapHtml
-                              data={treeViewData.current}
+                              data={viewTree!}
                               identity="name"
                               value="data"
-                              valueFormat=".02s"
+                              valueFormat=".03s"
                               labelTextColor={{
                                  from: "color",
                                  modifiers: [["darker", 2]],
@@ -161,18 +171,27 @@ const Scanning = () => {
                               }}
                               colors={{ scheme: "yellow_orange_red" }}
                               nodeOpacity={0.9}
-                              label={node => `${node.id} (${node.formattedValue})`}
+                              label={(node) =>
+                                 `${node.id} (${humanFileSize(node.value, true)})`
+                              }
+                              parentLabel={(node) =>
+                                 `${node.id} (${humanFileSize(node.value, true)})`
+                              }
+                              onClick={(node) => {
+                                 console.log("click");
+                                 setFocusedPath(node.data.id);
+                              }}
                            />
                         )}
                      </div>
 
                      <div className="bg-gray-900 w-1/3 p-2 flex flex-col">
-                        {focusedDirectory && (
+                        {/* {focusedPath && (
                            <ParentFolder
-                              focusedDirectory={focusedDirectory}
+                              focusedDirectory={focusedPath}
                               d3Chart={d3Chart}
                            ></ParentFolder>
-                        )}
+                        )} */}
                         <Droppable droppableId="filelist">
                            {(provided) => (
                               <div
@@ -181,9 +200,9 @@ const Scanning = () => {
                                  ref={provided.innerRef}
                                  {...provided.droppableProps}
                               >
-                                 {focusedDirectory &&
-                                    focusedDirectory.children &&
-                                    focusedDirectory.children.map((c, index) => (
+                                 {focusedPath &&
+                                    focusedPath.children &&
+                                    focusedPath.children.map((c, index) => (
                                        <FileLine
                                           key={c.data.id}
                                           item={c}
@@ -305,5 +324,26 @@ const Scanning = () => {
       </>
    );
 };
+
+function humanFileSize(bytes: number, si = false, dp = 1) {
+   const thresh = si ? 1000 : 1024;
+
+   if (Math.abs(bytes) < thresh) {
+      return bytes + " B";
+   }
+
+   const units = si
+      ? ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+      : ["KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
+   let u = -1;
+   const r = 10 ** dp;
+
+   do {
+      bytes /= thresh;
+      ++u;
+   } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
+
+   return bytes.toFixed(dp) + " " + units[u];
+}
 
 export default Scanning;

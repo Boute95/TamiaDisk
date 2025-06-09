@@ -152,6 +152,27 @@ export function getViewNode(base: DiskItem, path: Array<string> = []) {
   }
 }
 
+export function subTreeFromPath(
+  tree: DiskItem,
+  path: Array<string> = []
+): DiskItem | null {
+  let newPath = [...path];
+  if (path.length == 0) {
+    return tree;
+  } else {
+    const match = newPath.shift();
+    if (!tree.children) {
+      return null;
+    }
+    const found = tree.children.find((node) => node.name === match);
+    if (found) {
+      return subTreeFromPath(found, newPath);
+    } else {
+      return null;
+    }
+  }
+}
+
 export function getViewNodeGraph(
   base: D3HierarchyDiskItem,
   path: Array<string> = []
