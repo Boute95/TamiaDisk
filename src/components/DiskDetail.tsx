@@ -11,6 +11,7 @@ import {
    depthCut,
    depthCutForTreeView,
    subTreeFromPath,
+   markLeafs,
 } from "../pruneData";
 import { FileLine } from "./FileLine";
 import { ParentFolder } from "./ParentFolder";
@@ -18,7 +19,8 @@ import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { invoke } from "@tauri-apps/api/tauri";
 import { listen } from "@tauri-apps/api/event";
 import { removeFile, removeDir } from "@tauri-apps/api/fs";
-import { ResponsiveTreeMapHtml } from "@nivo/treemap";
+import { ResponsiveTreeMap } from "@nivo/treemap";
+import { patternSquaresDef } from "@nivo/core";
 (window as any).LockDNDEdgeScrolling = () => true;
 
 const Scanning = () => {
@@ -59,6 +61,9 @@ const Scanning = () => {
       });
       const unlisten2 = listen("scan_completed", (event: any) => {
          fullTree.current = JSON.parse(event.payload).tree;
+         if (fullTree.current) {
+            markLeafs(fullTree.current);
+         }
          setFocusedPath(fullTree.current?.id!);
          const mapped = itemMap(fullTree.current);
          baseDataD3Hierarchy.current = diskItemToD3Hierarchy(mapped as any);
@@ -156,7 +161,7 @@ const Scanning = () => {
                   <div className="flex flex-1">
                      <div className="flex-1 flex">
                         {viewTree && (
-                           <ResponsiveTreeMapHtml
+                           <ResponsiveTreeMap
                               data={viewTree!}
                               identity="name"
                               value="data"
@@ -181,6 +186,16 @@ const Scanning = () => {
                                  console.log("click");
                                  setFocusedPath(node.data.id);
                               }}
+                              defs={[
+                                 patternSquaresDef("pattern", {
+                                    size: 2,
+                                    padding: 4,
+                                    stagger: false,
+                                    background: "#ffffff",
+                                    color: "#c0bfbc",
+                                 }),
+                              ]}
+                              fill={[{ match: (node) => node.data.isLeaf, id: "pattern" }]}
                            />
                         )}
                      </div>

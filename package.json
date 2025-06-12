@@ -10,6 +10,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@nivo/core": "^0.99.0",
     "@nivo/treemap": "^0.99.0",
     "@tauri-apps/api": "^1.2.0",
     "d3": "^7.8.2",

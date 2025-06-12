@@ -5,6 +5,7 @@ interface DiskItem {
   id: string;
   name: string;
   data: number;
+  isLeaf: boolean;
   children: Array<DiskItem>;
 }
 

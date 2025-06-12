@@ -250,3 +250,12 @@ export function buildFullPath(
   //     return x.join("/");
   //   }
 }
+
+export function markLeafs(tree: DiskItem) {
+  if (!tree.children || tree.children.length === 0) {
+    tree.isLeaf = true;
+  } else {
+    tree.isLeaf = false;
+    tree.children.forEach(child => markLeafs(child));
+  }
+}
