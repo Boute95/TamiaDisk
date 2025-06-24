@@ -62,7 +62,9 @@ export function depthCutForTreeView(node: DiskItem, depth: number, curDepth = 0)
   if (depth == curDepth) {
     newNode.children = [];
   } else {
-    newNode.data = 0;
+    if (newNode.children?.length) {
+      newNode.data = 0;
+    }
     newNode.children = newNode.children.map((c) =>
       depthCutForTreeView(c, depth, curDepth + 1)
     );

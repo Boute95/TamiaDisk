@@ -192,7 +192,7 @@ const Scanning = () => {
                                     padding: 4,
                                     stagger: false,
                                     background: "#ffffff",
-                                    color: "#c0bfbc",
+                                    color: "#c0bfbc99",
                                  }),
                               ]}
                               fill={[{ match: (node) => node.data.isLeaf, id: "pattern" }]}
