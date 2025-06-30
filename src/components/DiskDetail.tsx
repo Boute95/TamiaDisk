@@ -21,6 +21,8 @@ import { listen } from "@tauri-apps/api/event";
 import { removeFile, removeDir } from "@tauri-apps/api/fs";
 import { ResponsiveTreeMap } from "@nivo/treemap";
 import { patternSquaresDef } from "@nivo/core";
+import { getNode } from "../pruneData";
+
 (window as any).LockDNDEdgeScrolling = () => true;
 
 const Scanning = () => {
@@ -31,6 +33,7 @@ const Scanning = () => {
    const navigate = useNavigate();
    const fullTree = useRef<DiskItem | null>(null);
    const [viewTree, setViewTree] = useState<DiskItem | null>(null);
+   const [parentNode, setParentNode] = useState<DiskItem | null>(null);
    const maxDepth = 3;
    const baseDataD3Hierarchy = useRef<D3HierarchyDiskItem | null>(null);
 
@@ -96,6 +99,16 @@ const Scanning = () => {
             if (subTree) {
                currentRootNode = subTree;
             }
+            const parentPath =
+               focusedPath === "/"
+                  ? fullTree.current
+                  : getNode(
+                       fullTree.current,
+                       focusedPath.substring(1).split("/").slice(0, -1)
+                    );
+            setParentNode(parentPath || null);
+         } else {
+            setParentNode(fullTree.current);
          }
          setViewTree(depthCutForTreeView(currentRootNode, maxDepth));
       }
@@ -197,18 +210,17 @@ const Scanning = () => {
                                     color: "#c0bfbc99",
                                  }),
                               ]}
-                              fill={[{ match: (node) => node.data.isLeaf, id: "pattern" }]}
+                              fill={[
+                                 { match: (node) => node.data.isLeaf, id: "pattern" },
+                              ]}
                            />
                         )}
                      </div>
 
-                     <div className="bg-gray-900 w-1/3 p-2 flex flex-col">
-                        {/* {focusedPath && (
-                           <ParentFolder
-                              focusedDirectory={focusedPath}
-                              d3Chart={d3Chart}
-                           ></ParentFolder>
-                        )} */}
+                     <div className="bg-gray-900 w-1/3 p-4 flex flex-col">
+                        {focusedPath && parentNode && (
+                              <ParentFolder parentPath={parentNode}></ParentFolder>
+                           )}
                         <Droppable droppableId="filelist">
                            {(provided) => (
                               <div
@@ -217,16 +229,23 @@ const Scanning = () => {
                                  ref={provided.innerRef}
                                  {...provided.droppableProps}
                               >
-                                 {viewTree &&
-                                    viewTree.children &&
-                                    viewTree.children.map((c, index) => (
+                                 {viewTree && (
+                                    <FileLine
+                                       className="bg-gray-800 py-2"
+                                       item={viewTree}
+                                       index={0}
+                                    />
+                                 )}
+                                 <>
+                                    {viewTree?.children?.map((c, index) => (
                                        <FileLine
+                                          className="pl-8"
                                           key={index}
                                           item={c}
                                           index={index}
                                        ></FileLine>
                                     ))}
-
+                                 </>
                                  {provided.placeholder}
                               </div>
                            )}

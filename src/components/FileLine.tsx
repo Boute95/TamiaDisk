@@ -11,6 +11,7 @@ interface FileLineProps {
   // d3Chart: any;
   index: number;
   // deleteMap: Map<string, boolean>;
+  className?: string;
 }
 const mul = window.OS_TYPE === "Windows_NT" ? 1024 : 1000;
 export const FileLine = ({
@@ -19,26 +20,25 @@ export const FileLine = ({
   // d3Chart,
   index,
   // deleteMap,
+  className = "",
 }: FileLineProps) => {
 
   return (
     <Draggable draggableId={item.id} index={index}>
       {(provided) => (
         <div
-          className={
-            "bg-gray-900 p-2 text-white flex justify-between rounded-md mt-1 pl-4 cursor-pointer hover:bg-black/20 " +
-            ""
+          className={`bg-gray-900 p-2 text-white flex justify-between rounded-md mt-1 cursor-pointer hover:bg-black/20 ${className}`}
             // (hoveredItem && item.data && hoveredItem.id === item.data.id
             //   ? "bg-black/20"
             //   : " ") +
             // (deleteMap.has(item.data.id)
             //   ? "border border-red-800 hover:border-red-900"
             //   : " ")
-          }
-          onContextMenu={(e) => {
-            e.preventDefault();
-            invoke("show_in_folder", { path: buildFullPath(item) });
-          }}
+          // }
+          // onContextMenu={(e) => {
+          //   e.preventDefault();
+          //   invoke("show_in_folder", { path: buildFullPath(item) });
+          // }}
           // onClick={() => {
           //   item.children
           //     ? d3Chart.current.focusDirectory(
@@ -63,7 +63,6 @@ export const FileLine = ({
             {item.name}
           </div>
           <div className="flex-1 basis-3/12 text-right text-xs">
-            {/* {JSON.stringify(item.data)} */}
             {item &&
               (item.value / mul / mul / mul).toFixed(2)}{" "}
             GB
