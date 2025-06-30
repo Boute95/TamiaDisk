@@ -179,6 +179,8 @@ const Scanning = () => {
                               label={(node) =>
                                  `${node.id} (${humanFileSize(node.value, true)})`
                               }
+                              labelSkipSize={32}
+                              labelTextColor="black"
                               parentLabel={(node) =>
                                  `${node.id} (${humanFileSize(node.value, true)})`
                               }
@@ -215,16 +217,13 @@ const Scanning = () => {
                                  ref={provided.innerRef}
                                  {...provided.droppableProps}
                               >
-                                 {focusedPath &&
-                                    focusedPath.children &&
-                                    focusedPath.children.map((c, index) => (
+                                 {viewTree &&
+                                    viewTree.children &&
+                                    viewTree.children.map((c, index) => (
                                        <FileLine
-                                          key={c.data.id}
+                                          key={index}
                                           item={c}
-                                          hoveredItem={hoveredItem}
-                                          d3Chart={d3Chart}
                                           index={index}
-                                          deleteMap={deleteMap.current}
                                        ></FileLine>
                                     ))}
 
