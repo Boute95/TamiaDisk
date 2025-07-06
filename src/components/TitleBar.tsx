@@ -37,8 +37,7 @@ const TitleBar = () => {
   return (
     <div
       data-tauri-drag-region
-      className="flex bg-darkBlue h-70 justify-between w-full items-center pl-3 pr-3 titlebar bg-cyan-800 p-2 text-white"
-      style={{ background: "#0F1831" }}
+      className="flex h-70 justify-between w-full items-center pl-3 pr-3 titlebar p-2 text-white"
     >
       {plf !== "darwin" ? (
         <img src={Logo} className="h-6 w-6"></img>

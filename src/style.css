@@ -2,33 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  height: 100%;
-  background: transparent;
-}
-body {
-  background: #0a1125af;
-
-  height: 100%;
-  -webkit-user-select: none;
-}
-
-.linuxbg{
-  background: #0a1125;
-}
-
 .titlebar {
   -webkit-app-region: drag;
 }
+
 .titlebar .navi {
   -webkit-app-region: no-drag;
 }
+
 .titlebar button {
   -webkit-app-region: no-drag;
-}
-
-#root {
-  height: 100%;
 }
 
 ::-webkit-scrollbar {
@@ -37,7 +20,7 @@ body {
 
 ::-webkit-scrollbar-thumb:vertical {
   margin: 5px;
-  background-color: #999;
+  background-color: theme('colors.secondary');
   -webkit-border-radius: 5px;
 }
 

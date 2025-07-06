@@ -27,7 +27,7 @@ export const FileLine = ({
     <Draggable draggableId={item.id} index={index}>
       {(provided) => (
         <div
-          className={`bg-gray-900 p-2 text-white flex justify-between rounded-md mt-1 cursor-pointer hover:bg-black/20 ${className}`}
+          className={`p-2 text-white flex justify-between rounded-md mt-1 cursor-pointer hover:bg-black/20 ${className}`}
             // (hoveredItem && item.data && hoveredItem.id === item.data.id
             //   ? "bg-black/20"
             //   : " ") +
