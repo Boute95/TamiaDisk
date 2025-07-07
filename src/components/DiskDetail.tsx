@@ -38,6 +38,8 @@ const Scanning = () => {
    const maxDepth = 3;
    const baseDataD3Hierarchy = useRef<D3HierarchyDiskItem | null>(null);
    const [focusedPath, setFocusedPath] = useState<string>("/");
+   const [pathHistory, setPathHistory] = useState<string[]>(["/"]);
+   const [currentHistoryIndex, setCurrentHistoryIndex] = useState<number>(0);
    const [hoveredItem, setHoveredItem] = useState<DiskItem | null>(null);
    const d3Chart = useRef(null) as any;
    const [view, setView] = useState("loading");
@@ -52,13 +54,27 @@ const Scanning = () => {
    const deleteMap = useRef<Map<string, boolean>>(new Map());
 
    const goUpOneFolder = () => {
-       if (focusedPath === "/") return; 
+       if (focusedPath === "/") return;
        const parts = focusedPath.split("/");
-       if (parts.length > 2) { 
+       if (parts.length > 2) {
            parts.pop();
            setFocusedPath(parts.join("/"));
        } else {
            setFocusedPath("/");
+       }
+   };
+
+   const goPreviousPath = () => {
+       if (currentHistoryIndex > 0) {
+           setCurrentHistoryIndex(currentHistoryIndex - 1);
+           setFocusedPath(pathHistory[currentHistoryIndex - 1]);
+       }
+   };
+
+   const goNextPath = () => {
+       if (currentHistoryIndex < pathHistory.length - 1) {
+           setCurrentHistoryIndex(currentHistoryIndex + 1);
+           setFocusedPath(pathHistory[currentHistoryIndex + 1]);
        }
    };
 
@@ -114,8 +130,19 @@ const Scanning = () => {
                        focusedPath.substring(1).split("/").slice(0, -1)
                     );
             setParentNode(parentPath || null);
+
+           const currentIndex = pathHistory.indexOf(focusedPath);
+           if (currentIndex !== -1 && currentIndex !== currentHistoryIndex) {
+               setCurrentHistoryIndex(currentIndex);
+               const newHistory = pathHistory.slice(0, currentIndex + 1);
+               setPathHistory(newHistory);
+           } else if (currentIndex === -1) {
+               const newHistory = [...pathHistory.slice(0, currentHistoryIndex + 1), focusedPath];
+               setPathHistory(newHistory);
+               setCurrentHistoryIndex(newHistory.length - 1);
+           }
          } else {
-            setParentNode(fullTree.current);
+           setParentNode(fullTree.current);
          }
          setViewTree(depthCutForTreeView(currentRootNode, maxDepth));
       }
@@ -157,7 +184,12 @@ const Scanning = () => {
          )}
          {view == "disk" && (
             <div className="grid grid-rows-[2.5rem_1fr] flex-1">
-               <ToolBar className="px-3" onFolderUp={goUpOneFolder} />
+               <ToolBar
+                  className="px-3"
+                  onFolderUp={goUpOneFolder}
+                  onPrevious={goPreviousPath}
+                  onNext={goNextPath}
+               />
                <div className="flex">
                   <DragDropContext
                      onDragEnd={(result) => {}}
@@ -201,7 +233,7 @@ const Scanning = () => {
                                  label={(node) =>
                                     `${node.id} (${humanFileSize(node.value, true)})`
                                  }
-                                 labelSkipSize={32}
+                                 labelSkipSize={60}
                                  parentLabel={(node) =>
                                     `${node.id} (${humanFileSize(node.value, true)})`
                                  }
