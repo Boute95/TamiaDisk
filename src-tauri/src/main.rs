@@ -21,7 +21,7 @@ use {std::fs::metadata, std::path::PathBuf};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-struct SquirrelDisk<'a> {
+struct TamiaDisk<'a> {
     name: &'a str,
     s_mount_point: String,
     total_space: u64,
@@ -114,10 +114,10 @@ fn get_disks() -> String {
     let mut sys = System::new_all();
     sys.refresh_all();
 
-    let mut vec: Vec<SquirrelDisk> = Vec::new();
+    let mut vec: Vec<TamiaDisk> = Vec::new();
 
     for disk in sys.disks() {
-        vec.push(SquirrelDisk {
+        vec.push(TamiaDisk {
             name: disk.name().to_str().unwrap(),
             s_mount_point: disk.mount_point().display().to_string(),
             total_space: disk.total_space(),

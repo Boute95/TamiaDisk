@@ -12,6 +12,7 @@ interface FileLineProps {
   index: number;
   // deleteMap: Map<string, boolean>;
   className?: string;
+  setFocusedPath?: (path: string) => void; // New prop for setting focused path
 }
 const mul = window.OS_TYPE === "Windows_NT" ? 1024 : 1000;
 export const FileLine = ({
@@ -21,13 +22,14 @@ export const FileLine = ({
   index,
   // deleteMap,
   className = "",
+  setFocusedPath,
 }: FileLineProps) => {
 
   return (
     <Draggable draggableId={item.id} index={index}>
       {(provided) => (
         <div
-          className={`p-2 text-white flex justify-between rounded-md mt-1 cursor-pointer hover:bg-black/20 ${className}`}
+          className={`p-2 text-white flex justify-between rounded-md mt-1 hover:bg-black/20 ${className}`}
             // (hoveredItem && item.data && hoveredItem.id === item.data.id
             //   ? "bg-black/20"
             //   : " ") +
@@ -35,20 +37,18 @@ export const FileLine = ({
             //   ? "border border-red-800 hover:border-red-900"
             //   : " ")
           // }
-          // onContextMenu={(e) => {
-          //   e.preventDefault();
-          //   invoke("show_in_folder", { path: buildFullPath(item) });
-          // }}
-          // onClick={() => {
-          //   item.children
-          //     ? d3Chart.current.focusDirectory(
-          //         item
-          //       ) /*window.electron.diskUtils.showItemInFolder(buildFullPath(c))*/
-          //     : invoke("show_in_folder", { path: buildFullPath(item) });
-          // }}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          ref={provided.innerRef}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            invoke("show_in_folder", { path: buildFullPath(item) });
+          }}
+          onClick={() => {
+             if (setFocusedPath && item.id) {
+               setFocusedPath(item.id);
+             }
+           }}
+           {...provided.draggableProps}
+           {...provided.dragHandleProps}
+           ref={provided.innerRef}
         >
           <img
             className="h-4 w-4 basis-1/12 mr-3"
@@ -64,7 +64,7 @@ export const FileLine = ({
           </div>
           <div className="flex-1 basis-3/12 text-right text-xs">
             {item &&
-              (item.value / mul / mul / mul).toFixed(2)}{" "}
+              ((item.value ?? item.data) / mul / mul / mul).toFixed(2)}{" "}
             GB
           </div>
         </div>

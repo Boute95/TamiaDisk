@@ -2,19 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import diskIcon from "../assets/harddisk.png";
 import {
-   buildPath,
-   getViewNode,
-   getViewNodeGraph,
    buildFullPath,
    diskItemToD3Hierarchy,
    itemMap,
-   depthCut,
    depthCutForTreeView,
    subTreeFromPath,
    markLeafs,
 } from "../pruneData";
 import { FileLine } from "./FileLine";
-import { ParentFolder } from "./ParentFolder";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { invoke } from "@tauri-apps/api/tauri";
 import { listen } from "@tauri-apps/api/event";
@@ -54,28 +49,28 @@ const Scanning = () => {
    const deleteMap = useRef<Map<string, boolean>>(new Map());
 
    const goUpOneFolder = () => {
-       if (focusedPath === "/") return;
-       const parts = focusedPath.split("/");
-       if (parts.length > 2) {
-           parts.pop();
-           setFocusedPath(parts.join("/"));
-       } else {
-           setFocusedPath("/");
-       }
+      if (focusedPath === "/") return;
+      const parts = focusedPath.split("/");
+      if (parts.length > 2) {
+         parts.pop();
+         setFocusedPath(parts.join("/"));
+      } else {
+         setFocusedPath("/");
+      }
    };
 
    const goPreviousPath = () => {
-       if (currentHistoryIndex > 0) {
-           setCurrentHistoryIndex(currentHistoryIndex - 1);
-           setFocusedPath(pathHistory[currentHistoryIndex - 1]);
-       }
+      if (currentHistoryIndex > 0) {
+         setCurrentHistoryIndex(currentHistoryIndex - 1);
+         setFocusedPath(pathHistory[currentHistoryIndex - 1]);
+      }
    };
 
    const goNextPath = () => {
-       if (currentHistoryIndex < pathHistory.length - 1) {
-           setCurrentHistoryIndex(currentHistoryIndex + 1);
-           setFocusedPath(pathHistory[currentHistoryIndex + 1]);
-       }
+      if (currentHistoryIndex < pathHistory.length - 1) {
+         setCurrentHistoryIndex(currentHistoryIndex + 1);
+         setFocusedPath(pathHistory[currentHistoryIndex + 1]);
+      }
    };
 
    useEffect(() => {
@@ -131,18 +126,21 @@ const Scanning = () => {
                     );
             setParentNode(parentPath || null);
 
-           const currentIndex = pathHistory.indexOf(focusedPath);
-           if (currentIndex !== -1 && currentIndex !== currentHistoryIndex) {
+            const currentIndex = pathHistory.indexOf(focusedPath);
+            if (currentIndex !== -1 && currentIndex !== currentHistoryIndex) {
                setCurrentHistoryIndex(currentIndex);
                const newHistory = pathHistory.slice(0, currentIndex + 1);
                setPathHistory(newHistory);
-           } else if (currentIndex === -1) {
-               const newHistory = [...pathHistory.slice(0, currentHistoryIndex + 1), focusedPath];
+            } else if (currentIndex === -1) {
+               const newHistory = [
+                  ...pathHistory.slice(0, currentHistoryIndex + 1),
+                  focusedPath,
+               ];
                setPathHistory(newHistory);
                setCurrentHistoryIndex(newHistory.length - 1);
-           }
+            }
          } else {
-           setParentNode(fullTree.current);
+            setParentNode(fullTree.current);
          }
          setViewTree(depthCutForTreeView(currentRootNode, maxDepth));
       }
@@ -228,7 +226,7 @@ const Scanning = () => {
                                     from: "color",
                                     modifiers: [["darker", 3]],
                                  }}
-                                 colors={{ scheme: "yellow_orange_red" }}
+                                 colors={{ scheme: "accent" }}
                                  nodeOpacity={0.9}
                                  label={(node) =>
                                     `${node.id} (${humanFileSize(node.value, true)})`
@@ -271,9 +269,10 @@ const Scanning = () => {
                                  >
                                     {viewTree && (
                                        <FileLine
-                                          className="py-2"
+                                          className="py-2 bg-white/20"
                                           item={viewTree}
                                           index={0}
+                                          setFocusedPath={setFocusedPath}
                                        />
                                     )}
                                     <>
@@ -283,6 +282,7 @@ const Scanning = () => {
                                              key={index}
                                              item={c}
                                              index={index}
+                                             setFocusedPath={setFocusedPath}
                                           ></FileLine>
                                        ))}
                                     </>
@@ -331,39 +331,39 @@ const Scanning = () => {
                                                 let successful: Array<D3HierarchyDiskItem> =
                                                    [];
                                                 // Cancello (errori li scarto da eliminare quindi vengono tenuti)
-                                                for (let node of deleteList) {
-                                                   const nodePath = buildFullPath(node)
-                                                      .replace("\\/", "/")
-                                                      .replace("\\", "/");
-                                                   try {
-                                                      //   await window.electron.diskUtils.rimraf(
-                                                      //     nodePath
-                                                      //   );
-                                                      //   if (
-                                                      //     node.children &&
-                                                      //     node.children.length > 0
-                                                      //   ) {
-                                                      // Workaroound: Since sometimes if the tree has some trimmed leafs a folder has no children
-                                                      removeDir(nodePath, {
-                                                         recursive: true,
-                                                      }).catch((err) =>
-                                                         removeFile(nodePath).catch(
-                                                            (err2) =>
-                                                               console.error(err, err2)
-                                                         )
-                                                      );
-                                                      //   } else {
-                                                      //     removeFile(nodePath).catch((err) => console.error(err));
-                                                      //   }
-                                                      successful.push(node);
-                                                      setDeleteState((prev) => ({
-                                                         ...prev,
-                                                         current: prev.current + 1,
-                                                      }));
-                                                   } catch (e) {
-                                                      console.error(e);
-                                                   }
-                                                }
+                                                // for (let node of deleteList) {
+                                                //    const nodePath = buildFullPath(node)
+                                                //       .replace("\\/", "/")
+                                                //       .replace("\\", "/");
+                                                //    try {
+                                                //       //   await window.electron.diskUtils.rimraf(
+                                                //       //     nodePath
+                                                //       //   );
+                                                //       //   if (
+                                                //       //     node.children &&
+                                                //       //     node.children.length > 0
+                                                //       //   ) {
+                                                //       // Workaroound: Since sometimes if the tree has some trimmed leafs a folder has no children
+                                                //       removeDir(nodePath, {
+                                                //          recursive: true,
+                                                //       }).catch((err) =>
+                                                //          removeFile(nodePath).catch(
+                                                //             (err2) =>
+                                                //                console.error(err, err2)
+                                                //          )
+                                                //       );
+                                                //       //   } else {
+                                                //       //     removeFile(nodePath).catch((err) => console.error(err));
+                                                //       //   }
+                                                //       successful.push(node);
+                                                //       setDeleteState((prev) => ({
+                                                //          ...prev,
+                                                //          current: prev.current + 1,
+                                                //       }));
+                                                //    } catch (e) {
+                                                //       console.error(e);
+                                                //    }
+                                                // }
                                                 // Una volta finito aggiorno il grafico
                                                 d3Chart.current.deleteNodes(successful);
                                                 setDeleteState((prev) => ({

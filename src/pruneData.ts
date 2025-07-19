@@ -239,10 +239,10 @@ export function buildPath(
 }
 
 export function buildFullPath(
-  node: D3HierarchyDiskItem,
+  node: DiskItem,
   acc: Array<string> = []
 ): string {
-  const path = node.data.id.replace("\\/", "/").replace("\\", "/");
+  const path = node.id.replace("\\/", "/").replace("\\", "/");
   //   console.log({ path });
   return path;
   //   if (node.parent) {

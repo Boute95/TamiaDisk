@@ -52,7 +52,7 @@ const TitleBar = () => {
                 to="/"
                 className="inline-flex items-center text-sm  cursor-pointer text-gray-400 hover:text-white"
               >
-                SquirrelDisk
+                TamiaDisk
               </Link>
             </li>
 
