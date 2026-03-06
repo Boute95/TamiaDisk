@@ -64,3 +64,13 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+
+  deploy:
+      runs-on: ubuntu-latest
+      needs: publish-tauri
+      environment:
+        name: production
+      steps:
+        - name: Mark deployment
+          run: echo "Deployment for $GITHUB_REF_NAME"
+            
