@@ -42,8 +42,7 @@ jobs:
             wget \
             file \
             libssl-dev \
-            javascript-common \
-            typescript
+            javascript-common
 
       - name: setup node
         uses: actions/setup-node@v4
