@@ -11,9 +11,9 @@ import {
 } from "../pruneData";
 import { FileLine } from "./FileLine";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { removeFile, removeDir } from "@tauri-apps/api/fs";
+import { remove } from "@tauri-apps/plugin-fs";
 import { ResponsiveTreeMap } from "@nivo/treemap";
 import { patternSquaresDef } from "@nivo/core";
 import { getNode } from "../pruneData";

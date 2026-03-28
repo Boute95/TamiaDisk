@@ -1,9 +1,10 @@
 import Logo from "../assets/squirrel.png";
 import Close from "../assets/Close.svg";
 import { Link, useLocation } from "react-router-dom";
-import { Platform, platform } from "@tauri-apps/api/os";
+import { Platform, platform } from "@tauri-apps/plugin-os";
 import { useEffect, useState } from "react";
-import { appWindow } from "@tauri-apps/api/window";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+const appWindow = getCurrentWebviewWindow();
 const CloseButton = () => {
   return (
     <button
@@ -32,14 +33,14 @@ const TitleBar = () => {
   let { state, pathname } = useLocation() as any;
   const [plf, setPlf] = useState<Platform | undefined>();
   useEffect(() => {
-    platform().then((platf) => setPlf(platf));
+    setPlf(platform());
   }, []);
   return (
     <div
       data-tauri-drag-region
       className="flex h-70 justify-between w-full items-center pl-3 pr-3 titlebar p-2 text-white"
     >
-      {plf !== "darwin" ? (
+      {plf !== "macos" ? (
         <img src={Logo} className="h-6 w-6"></img>
       ) : (
         <CloseButton></CloseButton>
@@ -105,7 +106,7 @@ const TitleBar = () => {
         </nav>
       </div>
       <div className="flex">
-        {plf !== "darwin" ? (
+        {plf !== "macos" ? (
           <CloseButton></CloseButton>
         ) : (
           <img src={Logo} className="h-6 w-6"></img>

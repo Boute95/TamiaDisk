@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/core";
 import { MemoryRouter as Router, Route, Routes } from "react-router-dom";
 import { ConfigProvider, theme } from 'antd';
 import themeConfig from './theme-config';
@@ -8,17 +8,15 @@ import TitleBar from "./components/TitleBar";
 import DiskList from "./components/DiskList";
 import DiskDetail from "./components/DiskDetail";
 
-import { platform } from "@tauri-apps/api/os";
+import { platform } from "@tauri-apps/plugin-os";
 
 function App() {
-   const [isLinux, setIsLinux] = useState(false);
-   useEffect(() => {
-      platform().then((plat) => {
-         if (plat === "linux") {
-            setIsLinux(true);
-         }
-      });
-   }, []);
+  const [isLinux, setIsLinux] = useState(false);
+  useEffect(() => {
+    if (platform() === "linux") {
+      setIsLinux(true);
+    }
+  }, []);
    return (
       <Router>
          <ConfigProvider

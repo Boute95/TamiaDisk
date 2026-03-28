@@ -1,11 +1,14 @@
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/core";
+import prettyBytes from "pretty-bytes";
+import { getIconForFolder } from "vscode-icons-js";
+// import { iconImages } from "./iconImages";
 import { buildFullPath } from "../pruneData";
 
 interface ParentFolderProps {
    parentPath: DiskItem;
 }
 export const ParentFolder = ({ parentPath }: ParentFolderProps) => {
-   const mul = window.OS_TYPE === "Windows_NT" ? 1024 : 1000;
+   const mul = window.OS_TYPE === "windows" ? 1024 : 1000;
 
    return (
       <div

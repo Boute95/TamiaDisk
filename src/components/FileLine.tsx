@@ -3,7 +3,7 @@ import { buildFullPath } from "../pruneData";
 import { getIconForFile, getIconForFolder } from "vscode-icons-js";
 // import { iconImages } from "./iconImages";
 import { Draggable } from "react-beautiful-dnd";
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/core";
 
 interface FileLineProps {
   item: DiskItem;
@@ -14,7 +14,8 @@ interface FileLineProps {
   className?: string;
   setFocusedPath?: (path: string) => void; // New prop for setting focused path
 }
-const mul = window.OS_TYPE === "Windows_NT" ? 1024 : 1000;
+
+const mul = window.OS_TYPE === "windows" ? 1024 : 1000;
 export const FileLine = ({
   item,
   // hoveredItem,
@@ -24,7 +25,6 @@ export const FileLine = ({
   className = "",
   setFocusedPath,
 }: FileLineProps) => {
-
   return (
     <Draggable draggableId={item.id} index={index}>
       {(provided) => (
