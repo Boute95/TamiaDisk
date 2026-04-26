@@ -5,6 +5,7 @@
 mod scan;
 mod window_style;
 
+#[cfg(target_os = "windows")]
 use regex::Regex;
 use serde::Serialize;
 use std::process::Command;
@@ -74,6 +75,7 @@ fn main() {
 fn show_in_folder(path: String) {
     #[cfg(target_os = "windows")]
     {
+        use regex::Regex;
         let re = Regex::new(r"/").unwrap();
         let result = re.replace_all(&path, "\\");
         Command::new("explorer")
