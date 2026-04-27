@@ -27,8 +27,13 @@
 /// - **Windows**: On Windows 11, the window will also have rounded corners.
 /// - **macOS**: Shadows are always disabled for transparent windows.
 /// - **Linux**: Unsupported, Shadows are controlled by the compositor installed on the end-user system.
-pub fn set_window_styles(window: impl raw_window_handle::HasRawWindowHandle) -> Result<(), Error> {
-    match window.raw_window_handle() {
+pub fn set_window_styles(window: &tauri::Window) -> Result<(), Error> {
+    use raw_window_handle::HasWindowHandle;
+    let raw_handle = window
+        .window_handle()
+        .map(|h| h.as_raw())
+        .map_err(|_| Error::UnsupportedPlatform)?;
+    match raw_handle {
         #[cfg(target_os = "macos")]
         raw_window_handle::RawWindowHandle::AppKit(handle) => {
             use cocoa::{appkit::NSWindow, base::id};
@@ -48,11 +53,10 @@ pub fn set_window_styles(window: impl raw_window_handle::HasRawWindowHandle) -> 
                 Graphics::Dwm::DWMWCP_ROUND,
             };
 
+            let hwnd = isize::from(handle.hwnd);
             unsafe {
-                // DwmExtendFrameIntoClientArea(handle.hwnd as _, &margins);
-
                 DwmSetWindowAttribute(
-                    handle.hwnd as _,
+                    hwnd,
                     DWMWA_WINDOW_CORNER_PREFERENCE,
                     &DWMWCP_ROUND as *const i32 as *const _,
                     std::mem::size_of::<i32>() as _,
@@ -60,7 +64,7 @@ pub fn set_window_styles(window: impl raw_window_handle::HasRawWindowHandle) -> 
 
                 let dark_color: COLORREF = 0x280606;
                 DwmSetWindowAttribute(
-                    handle.hwnd as _,
+                    hwnd,
                     DWMWA_BORDER_COLOR,
                     &dark_color as *const COLORREF as *const _,
                     std::mem::size_of::<COLORREF>() as _,

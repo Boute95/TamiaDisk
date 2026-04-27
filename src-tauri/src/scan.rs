@@ -4,7 +4,6 @@ use std::ops::Not;
 use regex::{Captures, Regex};
 
 use tauri::Emitter;
-use tauri::Manager;
 use tauri_plugin_shell::process::CommandEvent;
 use tauri_plugin_shell::ShellExt;
 
