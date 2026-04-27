@@ -36,11 +36,13 @@ pub fn set_window_styles(window: &tauri::WebviewWindow) -> Result<(), Error> {
     match raw_handle {
         #[cfg(target_os = "macos")]
         raw_window_handle::RawWindowHandle::AppKit(handle) => {
+            use cocoa::appkit::NSWindow;
             use cocoa::base::id;
             use objc::{msg_send, runtime::YES};
 
             unsafe {
-                let ns_window: id = msg_send![handle.ns_view as id, window];
+                let ns_view: id = handle.ns_view.as_ptr() as *mut _;
+                let ns_window: id = msg_send![ns_view, window];
                 ns_window.setHasShadow_(YES);
             }
 
