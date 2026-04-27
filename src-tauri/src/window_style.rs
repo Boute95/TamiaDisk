@@ -38,7 +38,7 @@ pub fn set_window_styles(window: &tauri::WebviewWindow) -> Result<(), Error> {
         raw_window_handle::RawWindowHandle::AppKit(handle) => {
             use cocoa::appkit::NSWindow;
             use cocoa::base::id;
-            use objc::{msg_send, runtime::YES};
+            use objc::{msg_send, sel, sel_impl, runtime::YES};
 
             unsafe {
                 let ns_view: id = handle.ns_view.as_ptr() as *mut _;
