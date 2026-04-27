@@ -35,14 +35,8 @@ pub fn set_window_styles(window: &tauri::WebviewWindow) -> Result<(), Error> {
         .map_err(|_| Error::UnsupportedPlatform)?;
     match raw_handle {
         #[cfg(target_os = "macos")]
-        raw_window_handle::RawWindowHandle::AppKit(handle) => {
-            use cocoa::{appkit::NSWindow, base::id};
-            use objc::runtime::YES;
-
-            unsafe {
-                (handle.ns_window as id).setHasShadow_(YES);
-            }
-
+        raw_window_handle::RawWindowHandle::AppKit(_) => {
+            window.shadow(true);
             Ok(())
         }
         #[cfg(target_os = "windows")]
