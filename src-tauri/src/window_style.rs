@@ -27,7 +27,7 @@
 /// - **Windows**: On Windows 11, the window will also have rounded corners.
 /// - **macOS**: Shadows are always disabled for transparent windows.
 /// - **Linux**: Unsupported, Shadows are controlled by the compositor installed on the end-user system.
-pub fn set_window_styles(window: &tauri::Window) -> Result<(), Error> {
+pub fn set_window_styles(window: &tauri::WebviewWindow) -> Result<(), Error> {
     use raw_window_handle::HasWindowHandle;
     let raw_handle = window
         .window_handle()

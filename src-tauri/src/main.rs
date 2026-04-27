@@ -51,7 +51,7 @@ fn main() {
                 .expect("Error applying blurred bg");
 
             #[cfg(any(windows, target_os = "macos"))]
-            window_style::set_window_styles(window.window()).unwrap();
+            window_style::set_window_styles(&window).unwrap();
 
             // app.listen_global("scan_stop", |event| {
             //     let s = app.state::<MyState>();
