@@ -50,7 +50,7 @@ fn main() {
             window_vibrancy::apply_blur(&window, Some((18, 18, 18, 125)))
                 .expect("Error applying blurred bg");
 
-            #[cfg(any(windows, target_os = "macos"))]
+            #[cfg(any(target_os = "windows", target_os = "macos"))]
             window_style::set_window_styles(&window).unwrap();
 
             // app.listen_global("scan_stop", |event| {
