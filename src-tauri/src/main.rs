@@ -40,7 +40,7 @@ fn main() {
         .plugin(tauri_plugin_process::init())
         .manage(MyState(Default::default()))
         .setup(|app| {
-            let window = app.get_webview_window("main").unwrap();
+            let _window = app.get_webview_window("main").unwrap();
             // window.open_devtools();
             #[cfg(target_os = "macos")]
             window_vibrancy::apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None)
@@ -63,10 +63,32 @@ fn main() {
             get_disks,
             start_scanning,
             stop_scanning,
-            show_in_folder
+            show_in_folder,
+            open_in_os
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[tauri::command]
+fn open_in_os(path: String) {
+    #[cfg(target_os = "windows")]
+    {
+        Command::new("cmd")
+            .args(["/C", "start", "", &path])
+            .spawn()
+            .unwrap();
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        Command::new("xdg-open").arg(&path).spawn().unwrap();
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        Command::new("open").arg(&path).spawn().unwrap();
+    }
 }
 
 #[tauri::command]

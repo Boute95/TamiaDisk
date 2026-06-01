@@ -27,6 +27,7 @@
 /// - **Windows**: On Windows 11, the window will also have rounded corners.
 /// - **macOS**: Shadows are always disabled for transparent windows.
 /// - **Linux**: Unsupported, Shadows are controlled by the compositor installed on the end-user system.
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 pub fn set_window_styles(window: &tauri::WebviewWindow) -> Result<(), Error> {
     use raw_window_handle::HasWindowHandle;
     let raw_handle = window
@@ -80,10 +81,12 @@ pub fn set_window_styles(window: &tauri::WebviewWindow) -> Result<(), Error> {
 }
 
 #[derive(Debug)]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 pub enum Error {
     UnsupportedPlatform,
 }
 
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "\"set_shadow()\" is only supported on Windows and macOS")

@@ -211,8 +211,8 @@ const Scanning = () => {
                      // }}
                   >
                      <div className="flex flex-1">
-                        <div className="flex-1 flex">
-                           {viewTree && (
+                         <div className="flex-1 flex">
+                            {viewTree && (
                               <ResponsiveTreeMap
                                  data={viewTree!}
                                  identity="name"
@@ -236,9 +236,9 @@ const Scanning = () => {
                                     `${node.id} (${humanFileSize(node.value, true)})`
                                  }
                                  onClick={(node) => {
-                                    console.log("click");
-                                    setFocusedPath(node.data.id);
-                                 }}
+                                     console.log("click");
+                                     setFocusedPath(node.data.id);
+                                  }}
                                  defs={[
                                     patternSquaresDef("pattern", {
                                        size: 2,
@@ -392,10 +392,10 @@ const Scanning = () => {
                            </Droppable>
                         </div>
                      </div>
-                  </DragDropContext>
-               </div>
-            </div>
-         )}
+                   </DragDropContext>
+                 </div>
+             </div>
+          )}
       </>
    );
 };
