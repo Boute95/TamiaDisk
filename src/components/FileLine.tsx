@@ -2,10 +2,7 @@ import prettyBytes from "pretty-bytes";
 import { buildFullPath } from "../pruneData";
 import { getIconForFile, getIconForFolder } from "vscode-icons-js";
 import { Draggable } from "react-beautiful-dnd";
-import { invoke } from "@tauri-apps/api/core";
-import { writeText } from "@tauri-apps/plugin-clipboard-manager";
-import { Dropdown } from "antd";
-import type { MenuProps } from "antd";
+import FileContextMenu from "./FileContextMenu";
 
 interface FileLineProps {
   item: DiskItem;
@@ -23,28 +20,10 @@ export const FileLine = ({
 }: FileLineProps) => {
   const path = buildFullPath(item);
 
-  const menuItems: MenuProps["items"] = [
-    {
-      key: "open",
-      label: "Open",
-      onClick: () => invoke("open_in_os", { path }),
-    },
-    {
-      key: "show",
-      label: "Show in folder",
-      onClick: () => invoke("show_in_folder", { path }),
-    },
-    {
-      key: "copy",
-      label: "Copy path",
-      onClick: () => writeText(path),
-    },
-  ];
-
   return (
     <Draggable draggableId={item.id} index={index}>
       {(provided) => (
-        <Dropdown menu={{ items: menuItems }} trigger={["contextMenu"]}>
+        <FileContextMenu path={path}>
           <div
             className={`p-2 text-white flex justify-between rounded-md mt-1 hover:bg-black/20 ${className}`}
             onClick={() => {
@@ -74,7 +53,7 @@ export const FileLine = ({
               GB
             </div>
           </div>
-        </Dropdown>
+        </FileContextMenu>
       )}
     </Draggable>
   );

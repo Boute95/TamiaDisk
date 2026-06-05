@@ -14,10 +14,11 @@ import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { remove } from "@tauri-apps/plugin-fs";
-import { ResponsiveTreeMap } from "@nivo/treemap";
+import { ResponsiveTreeMap, ComputedNode } from "@nivo/treemap";
 import { patternSquaresDef } from "@nivo/core";
 import { getNode } from "../pruneData";
 import ToolBar from "./ToolBar";
+import FileContextMenu from "./FileContextMenu";
 
 (window as any).LockDNDEdgeScrolling = () => true;
 
@@ -36,6 +37,7 @@ const Scanning = () => {
    const [pathHistory, setPathHistory] = useState<string[]>(["/"]);
    const [currentHistoryIndex, setCurrentHistoryIndex] = useState<number>(0);
    const [hoveredItem, setHoveredItem] = useState<DiskItem | null>(null);
+   const [contextNode, setContextNode] = useState<ComputedNode<DiskItem> | null>(null);
    const d3Chart = useRef(null) as any;
    const [view, setView] = useState("loading");
    const [bytesProcessed, setByteProcessed] = useState(0);
@@ -45,8 +47,10 @@ const Scanning = () => {
       total: 0,
       current: 0,
    });
-   const [deleteList, setDeleteList] = useState<Array<D3HierarchyDiskItem>>([]);
-   const deleteMap = useRef<Map<string, boolean>>(new Map());
+    const [deleteList, setDeleteList] = useState<Array<D3HierarchyDiskItem>>([]);
+    const deleteMap = useRef<Map<string, boolean>>(new Map());
+
+   const selPath = contextNode?.data.id ?? "";
 
    const goUpOneFolder = () => {
       if (focusedPath === "/") return;
@@ -211,51 +215,54 @@ const Scanning = () => {
                      // }}
                   >
                      <div className="flex flex-1">
-                         <div className="flex-1 flex">
-                            {viewTree && (
-                              <ResponsiveTreeMap
-                                 data={viewTree!}
-                                 identity="name"
-                                 value="data"
-                                 valueFormat=".03s"
-                                 labelTextColor={{
-                                    from: "color",
-                                    modifiers: [["darker", 2]],
-                                 }}
-                                 parentLabelTextColor={{
-                                    from: "color",
-                                    modifiers: [["darker", 3]],
-                                 }}
-                                 colors={{ scheme: "accent" }}
-                                 nodeOpacity={0.9}
-                                 label={(node) =>
-                                    `${node.id} (${humanFileSize(node.value, true)})`
-                                 }
-                                 labelSkipSize={60}
-                                 parentLabel={(node) =>
-                                    `${node.id} (${humanFileSize(node.value, true)})`
-                                 }
-                                 onClick={(node) => {
-                                     console.log("click");
-                                     setFocusedPath(node.data.id);
-                                  }}
-                                 defs={[
-                                    patternSquaresDef("pattern", {
-                                       size: 2,
-                                       padding: 4,
-                                       stagger: false,
-                                       background: "#ffffff",
-                                       color: "#c0bfbc99",
-                                    }),
-                                 ]}
-                                 fill={[
-                                    { match: (node) => node.data.isLeaf, id: "pattern" },
-                                 ]}
-                              />
-                           )}
-                        </div>
+                          <FileContextMenu path={selPath}>
+                             <div className="flex-1 flex" onContextMenu={(e) => { if (!contextNode) { e.preventDefault(); e.stopPropagation(); } }} onMouseLeave={() => setContextNode(null)}>
+                                {viewTree && (
+                                   <ResponsiveTreeMap
+                                      data={viewTree!}
+                                      identity="name"
+                                      value="data"
+                                      valueFormat=".03s"
+                                      labelTextColor={{
+                                         from: "color",
+                                         modifiers: [["darker", 2]],
+                                      }}
+                                      parentLabelTextColor={{
+                                         from: "color",
+                                         modifiers: [["darker", 3]],
+                                      }}
+                                      colors={{ scheme: "accent" }}
+                                      nodeOpacity={0.9}
+                                      label={(node) =>
+                                         `${node.id} (${humanFileSize(node.value, true)})`
+                                      }
+                                      labelSkipSize={60}
+                                      parentLabel={(node) =>
+                                         `${node.id} (${humanFileSize(node.value, true)})`
+                                      }
+                                      onMouseEnter={(node) => setContextNode(node as ComputedNode<DiskItem>)}
+                                      onClick={(node) => {
+                                          console.log("click");
+                                          setFocusedPath(node.data.id);
+                                       }}
+                                      defs={[
+                                         patternSquaresDef("pattern", {
+                                            size: 2,
+                                            padding: 4,
+                                            stagger: false,
+                                            background: "#ffffff",
+                                            color: "#c0bfbc99",
+                                         }),
+                                      ]}
+                                      fill={[
+                                         { match: (node) => node.data.isLeaf, id: "pattern" },
+                                      ]}
+                                   />
+                                )}
+                             </div>
+                          </FileContextMenu>
 
-                        <div className="w-1/3 p-4 flex flex-col">
+                         <div className="w-1/3 p-4 flex flex-col">
                            {/* {focusedPath && parentNode && (
                               <ParentFolder parentPath={parentNode}></ParentFolder>
                            )} */}
