@@ -1,0 +1,10 @@
+- [ ] Implement trash functionality
+  - [ ] Add a trash navigation button in the ToolBar (next to Folder Up) to enter the trash view
+    - Icon suggestion: `MdDelete` or `FaTrash`
+  - [ ] Create a `/trash` route with a `TrashView` component listing trashed files
+  - [ ] When inside the trash (either from ToolBar button or navigating via treemap), show in the ToolBar:
+    - A `|` divider separating navigation actions from trash actions
+    - "Restore" button to restore the selected/current trashed item
+    - "Empty trash" button (danger style) to permanently delete all trashed items
+  - [ ] Backend: add `list_trash`, `empty_trash`, and per-item `restore_from_trash` Tauri commands using the `trash` crate
+  - [ ] ToolBar should accept props like `inTrash?: boolean`, `onRestore?: () => void`, `onEmptyTrash?: () => void` to conditionally render trash action buttons

@@ -64,7 +64,8 @@ fn main() {
             start_scanning,
             stop_scanning,
             show_in_folder,
-            open_in_os
+            open_in_os,
+            move_to_trash
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -137,6 +138,10 @@ fn show_in_folder(path: String) {
     {
         Command::new("open").args(["-R", &path]).spawn().unwrap();
     }
+}
+#[tauri::command]
+fn move_to_trash(path: String) -> Result<(), String> {
+    trash::delete(&path).map_err(|e| e.to_string())
 }
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]

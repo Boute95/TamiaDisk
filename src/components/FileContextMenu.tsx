@@ -25,6 +25,13 @@ const FileContextMenu = ({ path, children }: FileContextMenuProps) => {
       label: "Copy path",
       onClick: () => writeText(path),
     },
+    { type: "divider" },
+    {
+      key: "trash",
+      label: "Move to trash",
+      danger: true,
+      onClick: () => invoke("move_to_trash", { path }),
+    },
   ];
 
   return (
